@@ -6,12 +6,12 @@ import { scaleAndStackImagesAndGetBase64 } from "./imageStacker";
 const IMAGE_STACK_SIZE = 3;
 
 let isDictating = false;
-let imageStack: HTMLImageElement[] = [];
-let imageStackInterval: number | null = null;
+let imageStack: HTMLImageElement = [];
+let imageStackInterval = null;
 
-let unsentMessages: string[] = [];
+let unsentMessages = [];
 let openAiCallInTransit = false;
-let newMessagesWatcherInterval: number | null = null;
+let newMessagesWatcherInterval = null;
 
 function pushNewImageOnStack() {
   const canvas = document.querySelector("canvas")! as HTMLCanvasElement;
@@ -37,6 +37,7 @@ function dictationEventHandler(message?: string) {
     unsentMessages = [];
     makeRequest(textPrompt, base64).then((result) => {
       // the dictation is catching its own speech!!!!! stop dictation before speaking.
+
       stopDictation();
       let utterance = new SpeechSynthesisUtterance(result);
       speechSynthesis.speak(utterance);
@@ -45,6 +46,8 @@ function dictationEventHandler(message?: string) {
         openAiCallInTransit = false;
       };
     });
+  } else {
+    unsentMessages.push(message);
   }
 }
 
@@ -64,11 +67,11 @@ document.addEventListener("DOMContentLoaded", async function () {
       startCamera();
       startDictation(dictationEventHandler);
 
-      imageStackInterval = window.setInterval(() => {
+      imageStackInterval = setInterval(() => {
         pushNewImageOnStack();
       }, 800);
 
-      newMessagesWatcherInterval = window.setInterval(() => {
+      newMessagesWatcherInterval = setInterval(() => {
         newMessagesWatcher();
       }, 100);
 

@@ -61,6 +61,12 @@ export async function makeRequest(
       body: JSON.stringify(body),
     });
     const data = await response.json();
+
+    const responseOutput = document.getElementById("responseOutput");
+    if (responseOutput) {
+      responseOutput.innerHTML = data.choices[0].message.content;
+    }
+
     return data.choices[0].message.content;
   } catch (error) {
     console.error(error);
